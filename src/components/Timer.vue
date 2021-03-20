@@ -2,11 +2,26 @@
   <div :class="['timer', { started }]" ref="timeElement">
     <div class="setup" :class="{ hidden: isFullscreen && started && !isMoving }">
       <div class="time-picker">
-        <input type="text" :maxlength="2" placeholder="00" @keydown.enter="onStart" @blur="filterInput" v-model.number="hourPlan">
+        <input :class="{ hidden: started }" type="text"
+               :maxlength="2"
+               placeholder="00"
+               @keydown.enter="onStart"
+               @blur="hourPlan = filterInput($event.target.value)"
+               v-model.number="hourPlan">
+        <span :class="{ hidden: started }">:</span>
+        <input type="text"
+               :maxlength="2"
+               placeholder="10"
+               @keydown.enter="onStart"
+               @blur="minutePlan = filterInput($event.target.value)"
+               v-model.number="minutePlan">
         <span>:</span>
-        <input type="text" :maxlength="2" placeholder="10" @keydown.enter="onStart" v-model.number="minutePlan">
-        <span>:</span>
-        <input type="text" :maxlength="2" placeholder="00" @keydown.enter="onStart" v-model.number="secondPlan">
+        <input type="text"
+               :maxlength="2"
+               placeholder="00"
+               @keydown.enter="onStart"
+               @blur="secondPlan = filterInput($event.target.value)"
+               v-model.number="secondPlan">
       </div>
       <button v-if="!started" @click="onStart">Start</button>
       <button v-if="started" @click="onStart">Restart</button>
@@ -35,38 +50,38 @@ const { isFullscreen, toggleFullscreen } = useFullscreen(timeElement)
 const { minute, second, hour, startTimer, stopTimer, timeOut, started } = useTimer()
 const { isMoving } = useMouseMoving()
 
-const initSecond = +localStorage.getItem('second') || undefined
-const initMinute = +localStorage.getItem('minute') || undefined
-const initHour = +localStorage.getItem('hour') || undefined
+const filterInput = (value: string) => parseInt(value) >= 0 ? parseInt(value) : undefined
+
+const initSecond = filterInput(localStorage.getItem('second')) ?? undefined
+const initMinute = filterInput(localStorage.getItem('minute')) ?? 10
+const initHour = filterInput(localStorage.getItem('hour')) ?? undefined
+
 const secondPlan = ref<number>(initSecond)
 const minutePlan = ref<number>(initMinute)
 const hourPlan = ref<number>(initHour)
 
 const refreshTimer = ([ newSecond, newMinute, newHour ], save = false) => {
   stopTimer()
-  second.value = newSecond ?? initSecond
-  minute.value = newMinute ?? initMinute
-  hour.value = newHour ?? initHour
+  second.value = filterInput(newSecond) ?? initSecond ?? 0
+  minute.value = filterInput(newMinute) ?? initMinute ?? 0
+  hour.value = filterInput(newHour) ?? initHour ?? 0
   if (save) {
-    newSecond && localStorage.setItem('second', newSecond)
-    newMinute && localStorage.setItem('minute', newMinute)
-    newHour && localStorage.setItem('hour', newHour)
+    newSecond ? localStorage.setItem('second', newSecond) : localStorage.removeItem('second')
+    newMinute ? localStorage.setItem('minute', newMinute) : localStorage.removeItem('minute')
+    newHour ? localStorage.setItem('hour', newHour) : localStorage.removeItem('hour')
   }
 }
 
 watch([ secondPlan, minutePlan, hourPlan ], val => refreshTimer(val, true))
-onMounted(() => refreshTimer([ initSecond, initMinute, initHour ]))
+onMounted(() => refreshTimer([ initSecond ?? 0, initMinute ?? 0, initHour ?? 0 ]))
 
 const onStart = () => {
-  refreshTimer([ secondPlan.value, minutePlan.value, hourPlan.value ])
+  refreshTimer([ secondPlan.value ?? 0, minutePlan.value ?? 0, hourPlan.value ?? 0 ])
   nextTick(startTimer)
 }
 const togglePause = () => {
   if (started.value) stopTimer()
   else startTimer()
-}
-const filterInput = (ev: Event<HTMLInputElement>) => {
-  console.log(ev.target.value)
 }
 
 const padTime = (time: number): string => String(time).padStart(2, '0')
@@ -87,15 +102,15 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
     background: $secondary
 
 
+.hidden
+  transition: opacity .3s
+  opacity: 0
+
 .setup
   display: flex
   align-items: stretch
   margin-bottom: 24px
   color: $white
-
-  &.hidden
-    transition: opacity .3s
-    opacity: 0
 
   .time-picker
     display: flex
