@@ -10,7 +10,7 @@ export default function useTimer() {
   const hour = ref(0)
 
   const time = computed({
-    get: () => second.value + minute.value * 60 + hour.value * 3600,
+    get: () => (second.value ?? 0) + (minute.value ?? 0) * 60 + (hour.value ?? 0) * 3600,
     set: (time: number) => {
       second.value = time % 60
       time = ~~(time / 60)

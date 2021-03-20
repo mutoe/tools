@@ -28,31 +28,37 @@
 import useFullscreen from 'src/hooks/useFullscreen'
 import useMouseMoving from 'src/hooks/useMouseMoving'
 import useTimer from 'src/hooks/useTimer'
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
 const timeElement = ref<HTMLTimeElement>(null)
 const { isFullscreen, toggleFullscreen } = useFullscreen(timeElement)
 const { minute, second, hour, startTimer, stopTimer, timeOut, started } = useTimer()
 const { isMoving } = useMouseMoving()
 
-const secondPlan = ref<number>(localStorage.getItem('second') ?? undefined)
-const minutePlan = ref<number>(localStorage.getItem('minute') ?? undefined)
-const hourPlan = ref<number>(localStorage.getItem('hour') ?? undefined)
+const initSecond = +localStorage.getItem('second') || undefined
+const initMinute = +localStorage.getItem('minute') || undefined
+const initHour = +localStorage.getItem('hour') || undefined
+const secondPlan = ref<number>(initSecond)
+const minutePlan = ref<number>(initMinute)
+const hourPlan = ref<number>(initHour)
 
-const refreshTimer = ([ newSecond, newMinute, newHour ]) => {
+const refreshTimer = ([ newSecond, newMinute, newHour ], save = false) => {
   stopTimer()
-  second.value = newSecond ?? 0
-  minute.value = newMinute ?? 10
-  hour.value = newHour ?? 0
-  newSecond && localStorage.setItem('second', newSecond)
-  newMinute && localStorage.setItem('minute', newMinute)
-  newHour && localStorage.setItem('hour', newHour)
+  second.value = newSecond ?? initSecond
+  minute.value = newMinute ?? initMinute
+  hour.value = newHour ?? initHour
+  if (save) {
+    newSecond && localStorage.setItem('second', newSecond)
+    newMinute && localStorage.setItem('minute', newMinute)
+    newHour && localStorage.setItem('hour', newHour)
+  }
 }
 
-watch([ secondPlan, minutePlan, hourPlan ], refreshTimer)
+watch([ secondPlan, minutePlan, hourPlan ], val => refreshTimer(val, true))
+onMounted(() => refreshTimer([ initSecond, initMinute, initHour ]))
 
-const onStart = (force = false) => {
-  if (force) refreshTimer([ secondPlan.value, minutePlan.value, hourPlan.value ])
+const onStart = () => {
+  refreshTimer([ secondPlan.value, minutePlan.value, hourPlan.value ])
   nextTick(startTimer)
 }
 const togglePause = () => {
@@ -118,10 +124,11 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
     font-size: 200%
     @include border
     background: transparent
-    padding: 8px 48px
+    padding: 8px 0
     margin-left: 24px
     height: 100%
     color: $white
+    width: 7em
 
 time
   flex: auto
@@ -135,7 +142,7 @@ time
   cursor: pointer
 
   &.withHour
-    font-size: min(60vh, 28vw)
+    font-size: min(60vh, 23vw)
 
   &.timeOut
     animation: blinker 1s ease infinite
