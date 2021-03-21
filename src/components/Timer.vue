@@ -2,14 +2,14 @@
   <div :class="['timer', { started }]" ref="timeElement">
     <div class="setup" :class="{ hidden: isFullscreen && started && !isMoving }">
       <div class="time-picker">
-        <input :class="{ hidden: !hour && started }" type="text"
+        <input :class="{ hidden: !hourPlan && started }" type="text"
                :maxlength="2"
                placeholder="00"
                @keydown.enter="onStart"
                @blur="hourPlan = filterInput($event.target.value)"
                @wheel.prevent="hourPlan = onWheel($event.deltaY, hourPlan, 11)"
                v-model.number="hourPlan">
-        <span :class="{ hidden: !hour && started }">:</span>
+        <span :class="{ hidden: !hourPlan && started }">:</span>
         <input type="text"
                :maxlength="2"
                placeholder="10"
@@ -58,7 +58,7 @@ const filterInput = (value: string) => parseInt(value) >= 0 ? parseInt(value) : 
 const onWheel = throttle((value: number, currentValue: string, max: number) => {
   const sign = value > 0 ? 1 : -1
   return Math.min(max, Math.max(0, (currentValue ?? 0) + sign))
-}, 65)
+}, 100)
 
 const initSecond = filterInput(localStorage.getItem('second')) ?? undefined
 const initMinute = filterInput(localStorage.getItem('minute')) ?? 10
