@@ -2,18 +2,20 @@
   <div :class="['timer', { started }]" ref="timeElement">
     <div class="setup" :class="{ hidden: isFullscreen && started && !isMoving }">
       <div class="time-picker">
-        <input :class="{ hidden: started }" type="text"
+        <input :class="{ hidden: !hour && started }" type="text"
                :maxlength="2"
                placeholder="00"
                @keydown.enter="onStart"
                @blur="hourPlan = filterInput($event.target.value)"
+               @wheel.prevent="hourPlan = onWheel($event.deltaY, hourPlan, 11)"
                v-model.number="hourPlan">
-        <span :class="{ hidden: started }">:</span>
+        <span :class="{ hidden: !hour && started }">:</span>
         <input type="text"
                :maxlength="2"
                placeholder="10"
                @keydown.enter="onStart"
                @blur="minutePlan = filterInput($event.target.value)"
+               @wheel.prevent="minutePlan = onWheel($event.deltaY, minutePlan, 59)"
                v-model.number="minutePlan">
         <span>:</span>
         <input type="text"
@@ -21,6 +23,7 @@
                placeholder="00"
                @keydown.enter="onStart"
                @blur="secondPlan = filterInput($event.target.value)"
+               @wheel.prevent="secondPlan = onWheel($event.deltaY, secondPlan, 59)"
                v-model.number="secondPlan">
       </div>
       <button v-if="!started" @click="onStart">Start</button>
@@ -30,10 +33,10 @@
     <time :class="{ timeOut, withHour: hour > 0 }" @click="togglePause">
       <template v-if="hour > 0">
         {{ hour }}
-        <span v-show="!(second % 2)">:</span>
+        <span v-show="!started || !(second % 2)">:</span>
       </template>
       {{ padTime(minute) }}
-      <span v-show="!(second % 2)">:</span>
+      <span v-show="!started || !(second % 2)">:</span>
       {{ padTime(second) }}
     </time>
   </div>
@@ -44,6 +47,7 @@ import useFullscreen from 'src/hooks/useFullscreen'
 import useMouseMoving from 'src/hooks/useMouseMoving'
 import useTimer from 'src/hooks/useTimer'
 import { nextTick, onMounted, ref, watch } from 'vue'
+import throttle from 'lodash/throttle'
 
 const timeElement = ref<HTMLTimeElement>(null)
 const { isFullscreen, toggleFullscreen } = useFullscreen(timeElement)
@@ -51,6 +55,10 @@ const { minute, second, hour, startTimer, stopTimer, timeOut, started } = useTim
 const { isMoving } = useMouseMoving()
 
 const filterInput = (value: string) => parseInt(value) >= 0 ? parseInt(value) : undefined
+const onWheel = throttle((value: number, currentValue: string, max: number) => {
+  const sign = value > 0 ? 1 : -1
+  return Math.min(max, Math.max(0, (currentValue ?? 0) + sign))
+}, 65)
 
 const initSecond = filterInput(localStorage.getItem('second')) ?? undefined
 const initMinute = filterInput(localStorage.getItem('minute')) ?? 10

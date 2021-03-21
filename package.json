@@ -9,10 +9,12 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "vue": "^3.0.7",
     "vue-router": "^4.0.5"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.168",
     "@vitejs/plugin-vue": "^1.1.5",
     "@vue/compiler-sfc": "^3.0.7",
     "sass": "^1.32.8",
