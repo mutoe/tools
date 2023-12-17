@@ -9,7 +9,7 @@
           :maxlength="2"
           placeholder="00"
           @keydown.enter="onStart"
-          @blur="hourPlan = filterInput($event.target.value)"
+          @blur="hourPlan = filterInput($event)"
           @wheel.prevent="hourPlan = onWheel($event.deltaY, hourPlan, 11)"
         >
         <span :class="{ hidden: !hourPlan && started }">:</span>
@@ -19,7 +19,7 @@
           :maxlength="2"
           placeholder="10"
           @keydown.enter="onStart"
-          @blur="minutePlan = filterInput($event.target.value)"
+          @blur="minutePlan = filterInput($event)"
           @wheel.prevent="minutePlan = onWheel($event.deltaY, minutePlan, 59)"
         >
         <span>:</span>
@@ -29,7 +29,7 @@
           :maxlength="2"
           placeholder="00"
           @keydown.enter="onStart"
-          @blur="secondPlan = filterInput($event.target.value)"
+          @blur="secondPlan = filterInput($event)"
           @wheel.prevent="secondPlan = onWheel($event.deltaY, secondPlan, 59)"
         >
       </div>
@@ -61,8 +61,18 @@ const { isFullscreen, toggleFullscreen } = useFullscreen(timeElement)
 const { minute, second, hour, startTimer, stopTimer, timeOut, started } = useTimer()
 const { isMoving } = useMouseMoving()
 
-const filterInput = (value: string) => Number.parseInt(value) >= 0 ? Number.parseInt(value) : undefined
-const onWheel = throttle((value: number, currentValue: number, max: number) => {
+function filterInput(value: Event | number | string | null | undefined): undefined | number {
+  if (value === null || value === undefined)
+    return undefined
+  if (typeof value === 'number')
+    return value
+  if (typeof value === 'object' && value.target && 'value' in value.target)
+    value = String(value.target.value)
+  if (typeof value === 'string')
+    return Number.parseInt(value) >= 0 ? Number.parseInt(value) : undefined
+}
+
+const onWheel = throttle((value: number, currentValue: number | undefined, max: number) => {
   const sign = value > 0 ? 1 : -1
   return Math.min(max, Math.max(0, (currentValue ?? 0) + sign))
 }, 100)
@@ -71,23 +81,24 @@ const initSecond = filterInput(localStorage.getItem('second')) ?? undefined
 const initMinute = filterInput(localStorage.getItem('minute')) ?? 10
 const initHour = filterInput(localStorage.getItem('hour')) ?? undefined
 
-const secondPlan = ref<number>(initSecond)
-const minutePlan = ref<number>(initMinute)
-const hourPlan = ref<number>(initHour)
+const secondPlan = ref<number | undefined>(initSecond)
+const minutePlan = ref<number | undefined>(initMinute)
+const hourPlan = ref<number | undefined>(initHour)
 
-function refreshTimer([newSecond, newMinute, newHour], save = false) {
+function refreshTimer([newSecond, newMinute, newHour]: [number | undefined, number | undefined, number | undefined], save = false) {
   stopTimer()
   second.value = filterInput(newSecond) ?? initSecond ?? 0
   minute.value = filterInput(newMinute) ?? initMinute ?? 0
   hour.value = filterInput(newHour) ?? initHour ?? 0
   if (save) {
-    newSecond ? localStorage.setItem('second', newSecond) : localStorage.removeItem('second')
-    newMinute ? localStorage.setItem('minute', newMinute) : localStorage.removeItem('minute')
-    newHour ? localStorage.setItem('hour', newHour) : localStorage.removeItem('hour')
+    newSecond ? localStorage.setItem('second', String(newSecond)) : localStorage.removeItem('second')
+    newMinute ? localStorage.setItem('minute', String(newMinute)) : localStorage.removeItem('minute')
+    newHour ? localStorage.setItem('hour', String(newHour)) : localStorage.removeItem('hour')
   }
 }
 
 watch([secondPlan, minutePlan, hourPlan], val => refreshTimer(val, true))
+
 onMounted(() => refreshTimer([initSecond ?? 0, initMinute ?? 0, initHour ?? 0]))
 
 function onStart() {
