@@ -142,7 +142,9 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
 }
 
 .setup {
+  position absolute
   display flex
+  height "max(10vh, 50px)" % null
   align-items stretch
   margin-bottom 24px
   color $white
@@ -150,10 +152,14 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
   .time-picker {
     display flex
     box-sizing content-box
+    font-size 1vh
 
     input,
     span {
-      padding 0.2em 0
+      display flex
+      height 100%
+      align-items center
+      justify-content center
       background transparent
       color $white
       font-family monospace
@@ -162,7 +168,7 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
 
     input {
       width 1.2em
-      padding 0.2em
+      padding 0 "max(0.2em, 3vh)" % null
       border none
       outline none
       text-align right
@@ -176,10 +182,12 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
   button {
     width 7em
     height 100%
-    padding 8px 0
+    box-sizing content-box
+    padding 0
     margin-left 24px
     background transparent
     color $white
+    cursor pointer
     font-size 200%
     border()
   }
