@@ -1,6 +1,6 @@
-import {onMounted, onUnmounted, type Ref, ref} from 'vue'
+import { type Ref, onMounted, onUnmounted, ref } from 'vue'
 
-export default function useFullscreen (element: Ref<HTMLElement | undefined>) {
+export default function useFullscreen(element: Ref<HTMLElement | undefined>) {
   const isFullscreen = ref(false)
 
   const handler = (e: Event) => {
@@ -8,11 +8,10 @@ export default function useFullscreen (element: Ref<HTMLElement | undefined>) {
   }
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      element.value?.requestFullscreen?.()
-    } else {
+    if (document.fullscreenElement)
       document.exitFullscreen?.()
-    }
+    else
+      element.value?.requestFullscreen?.()
   }
 
   onMounted(() => {

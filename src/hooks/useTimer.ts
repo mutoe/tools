@@ -13,14 +13,14 @@ export default function useTimer() {
     get: () => (second.value ?? 0) + (minute.value ?? 0) * 60 + (hour.value ?? 0) * 3600,
     set: (time: number) => {
       second.value = time % 60
-      time = ~~(time / 60)
+      time = Math.trunc(time / 60)
       minute.value = time % 60
-      time = ~~(time / 60)
+      time = Math.trunc(time / 60)
       hour.value = time
     },
   })
 
-  const handler = () => {
+  function handler() {
     if (time.value <= 0) {
       timeOut.value = true
       stopTimer()
@@ -29,13 +29,13 @@ export default function useTimer() {
     time.value--
   }
 
-  const startTimer = () => {
+  function startTimer() {
     timeOut.value = false
     started.value = true
     timer.value = setInterval(handler, 1000)
   }
 
-  const stopTimer = () => {
+  function stopTimer() {
     clearInterval(timer.value)
     timer.value = undefined
     started.value = false

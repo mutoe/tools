@@ -1,17 +1,20 @@
 {
   "name": "@mutoe/tools",
-  "license": "MIT",
-  "version": "1.0.0",
   "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
+    "prepare": "simple-git-hooks",
     "start": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "test:e2e": "playwright test",
     "build-only": "vite build",
+    "preview": "vite preview",
     "type-check": "vue-tsc --build --force",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "pnpm lint:script && pnpm lint:style",
+    "lint:script": "eslint --fix .",
+    "lint:style": "stylelint --fix .",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "lodash": "^4.17.21",
@@ -21,17 +24,42 @@
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@mutoe/eslint-config": "^2.4.6",
+    "@mutoe/stylelint-config-preset-stylus": "^1.0.0",
     "@playwright/test": "^1.40.1",
     "@tsconfig/node18": "^18.2.2",
     "@types/lodash": "^4.14.168",
     "@types/node": "^20.10.4",
     "@vitejs/plugin-vue": "^4.5.2",
     "@vue/tsconfig": "^0.5.0",
-    "eslint": "^8.56.0",
+    "eslint": "~8.52.0",
+    "eslint-plugin-vue": "^9.19.2",
+    "eslint-plugin-vuejs-accessibility": "^2.2.0",
+    "eslint-processor-vue-blocks": "^0.1.1",
+    "lint-staged": "^15.2.0",
     "npm-run-all2": "^6.1.1",
+    "simple-git-hooks": "^2.9.0",
+    "stylelint": "^15.11.0",
     "stylus": "^0.62.0",
     "typescript": "~5.3.3",
     "vite": "^5.0.10",
+    "vue-eslint-parser": "^9.3.2",
     "vue-tsc": "^1.8.25"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix",
+    "*.{styl,stylus,vue}": "stylelint --fix"
+  },
+  "stylelint": {
+    "extends": [
+      "@mutoe/stylelint-config-preset-stylus"
+    ],
+    "ignoreFiles": [
+      "**/*",
+      "!src/**/*.{vue,styl,stylus}"
+    ]
   }
 }

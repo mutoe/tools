@@ -1,16 +1,17 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 
-export default function useMouseMoving () {
+export default function useMouseMoving() {
   const isMoving = ref(true)
 
-  let timer: number = NaN
+  let timer: number = Number.NaN
 
   const handler = () => {
     isMoving.value = true
-    if (timer) clearTimeout(timer)
+    if (timer)
+      clearTimeout(timer)
     timer = setTimeout(() => {
       isMoving.value = false
-      timer = NaN
+      timer = Number.NaN
     }, 3000)
   }
 

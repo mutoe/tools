@@ -1,30 +1,37 @@
 <template>
-  <div :class="['timer', { started }]" ref="timeElement">
+  <div ref="timeElement" class="timer" :class="{ started }">
     <div class="setup" :class="{ hidden: isFullscreen && started && !isMoving }">
       <div class="time-picker">
-        <input :class="{ hidden: !hourPlan && started }" type="text"
-               :maxlength="2"
-               placeholder="00"
-               @keydown.enter="onStart"
-               @blur="hourPlan = filterInput($event.target.value)"
-               @wheel.prevent="hourPlan = onWheel($event.deltaY, hourPlan, 11)"
-               v-model.number="hourPlan">
+        <input
+          v-model.number="hourPlan"
+          :class="{ hidden: !hourPlan && started }"
+          type="text"
+          :maxlength="2"
+          placeholder="00"
+          @keydown.enter="onStart"
+          @blur="hourPlan = filterInput($event.target.value)"
+          @wheel.prevent="hourPlan = onWheel($event.deltaY, hourPlan, 11)"
+        >
         <span :class="{ hidden: !hourPlan && started }">:</span>
-        <input type="text"
-               :maxlength="2"
-               placeholder="10"
-               @keydown.enter="onStart"
-               @blur="minutePlan = filterInput($event.target.value)"
-               @wheel.prevent="minutePlan = onWheel($event.deltaY, minutePlan, 59)"
-               v-model.number="minutePlan">
+        <input
+          v-model.number="minutePlan"
+          type="text"
+          :maxlength="2"
+          placeholder="10"
+          @keydown.enter="onStart"
+          @blur="minutePlan = filterInput($event.target.value)"
+          @wheel.prevent="minutePlan = onWheel($event.deltaY, minutePlan, 59)"
+        >
         <span>:</span>
-        <input type="text"
-               :maxlength="2"
-               placeholder="00"
-               @keydown.enter="onStart"
-               @blur="secondPlan = filterInput($event.target.value)"
-               @wheel.prevent="secondPlan = onWheel($event.deltaY, secondPlan, 59)"
-               v-model.number="secondPlan">
+        <input
+          v-model.number="secondPlan"
+          type="text"
+          :maxlength="2"
+          placeholder="00"
+          @keydown.enter="onStart"
+          @blur="secondPlan = filterInput($event.target.value)"
+          @wheel.prevent="secondPlan = onWheel($event.deltaY, secondPlan, 59)"
+        >
       </div>
       <button v-if="!started" @click="onStart">Start</button>
       <button v-if="started" @click="onStart">Restart</button>
@@ -43,19 +50,19 @@
 </template>
 
 <script lang="ts" setup>
+import { nextTick, onMounted, ref, watch } from 'vue'
+import throttle from 'lodash/throttle'
 import useFullscreen from 'src/hooks/useFullscreen'
 import useMouseMoving from 'src/hooks/useMouseMoving'
 import useTimer from 'src/hooks/useTimer'
-import { nextTick, onMounted, ref, watch } from 'vue'
-import throttle from 'lodash/throttle'
 
 const timeElement = ref<HTMLTimeElement>()
 const { isFullscreen, toggleFullscreen } = useFullscreen(timeElement)
 const { minute, second, hour, startTimer, stopTimer, timeOut, started } = useTimer()
 const { isMoving } = useMouseMoving()
 
-const filterInput = (value: string) => parseInt(value) >= 0 ? parseInt(value) : undefined
-const onWheel = throttle((value: number, currentValue: string, max: number) => {
+const filterInput = (value: string) => Number.parseInt(value) >= 0 ? Number.parseInt(value) : undefined
+const onWheel = throttle((value: number, currentValue: number, max: number) => {
   const sign = value > 0 ? 1 : -1
   return Math.min(max, Math.max(0, (currentValue ?? 0) + sign))
 }, 100)
@@ -68,7 +75,7 @@ const secondPlan = ref<number>(initSecond)
 const minutePlan = ref<number>(initMinute)
 const hourPlan = ref<number>(initHour)
 
-const refreshTimer = ([ newSecond, newMinute, newHour ], save = false) => {
+function refreshTimer([newSecond, newMinute, newHour], save = false) {
   stopTimer()
   second.value = filterInput(newSecond) ?? initSecond ?? 0
   minute.value = filterInput(newMinute) ?? initMinute ?? 0
@@ -80,97 +87,110 @@ const refreshTimer = ([ newSecond, newMinute, newHour ], save = false) => {
   }
 }
 
-watch([ secondPlan, minutePlan, hourPlan ], val => refreshTimer(val, true))
-onMounted(() => refreshTimer([ initSecond ?? 0, initMinute ?? 0, initHour ?? 0 ]))
+watch([secondPlan, minutePlan, hourPlan], val => refreshTimer(val, true))
+onMounted(() => refreshTimer([initSecond ?? 0, initMinute ?? 0, initHour ?? 0]))
 
-const onStart = () => {
-  refreshTimer([ secondPlan.value ?? 0, minutePlan.value ?? 0, hourPlan.value ?? 0 ])
+function onStart() {
+  refreshTimer([secondPlan.value ?? 0, minutePlan.value ?? 0, hourPlan.value ?? 0])
   nextTick(startTimer)
 }
-const togglePause = () => {
-  if (started.value) stopTimer()
+function togglePause() {
+  if (started.value)
+    stopTimer()
   else startTimer()
 }
 
 const padTime = (time: number): string => String(time).padStart(2, '0')
 </script>
 
-<style lang="stylus" scoped>
-.timer
-  height: 100%
-  display: flex
-  flex-direction: column
-  align-items: center
-  background: $primary
-  padding: 48px
-
-  &:not(&.started)
-    background: $secondary
-
-
-.hidden
-  transition: opacity .3s
-  opacity: 0
-
-.setup
-  display: flex
-  align-items: stretch
-  margin-bottom: 24px
-  color: $white
-
-  .time-picker
-    display: flex
-    box-sizing: content-box
-
-    input,
-    span
-      font-family: monospace
-      font-size: 500%
-      padding: 0.2em 0
-      background: transparent
-      color: $white
-
-    input
-      padding: 0.2em
-      border: none
-      width: 1.2em
-      text-align: right
-      outline: none
-
-      &:focus
-        background: rgba($primary, 10%)
-
-  button
-    font-size: 200%
-    border()
-    background: transparent
-    padding: 8px 0
-    margin-left: 24px
-    height: 100%
-    color: $white
-    width: 7em
-
-time
-  flex: auto
-  display: flex
-  flex-wrap: nowrap
-  justify-content: center
-  align-items: center
-  width: 100%
-  color: #eee
-  font-size: min(60vh, 36vw)
-  cursor: pointer
-
-  &.withHour
-    font-size: min(60vh, 23vw)
-
-  &.timeOut
-    animation: blinker 1s ease infinite
-
+<style lang="stylus">
+@keyframes blinker {
+  70% {
+    color $secondary
+  }
+}
 </style>
 
-<style lang="stylus">
-@keyframes blinker
-  70%
-    color: $secondary
+<style lang="stylus" scoped>
+.timer {
+  display flex
+  height 100%
+  flex-direction column
+  align-items center
+  padding 48px
+  background $primary
+
+  &:not(&.started) {
+    background $secondary
+  }
+}
+
+.hidden {
+  opacity 0
+  transition opacity 0.3s
+}
+
+.setup {
+  display flex
+  align-items stretch
+  margin-bottom 24px
+  color $white
+
+  .time-picker {
+    display flex
+    box-sizing content-box
+
+    input,
+    span {
+      padding 0.2em 0
+      background transparent
+      color $white
+      font-family monospace
+      font-size 500%
+    }
+
+    input {
+      width 1.2em
+      padding 0.2em
+      border none
+      outline none
+      text-align right
+
+      &:focus {
+        background rgba($primary, 10%)
+      }
+    }
+  }
+
+  button {
+    width 7em
+    height 100%
+    padding 8px 0
+    margin-left 24px
+    background transparent
+    color $white
+    font-size 200%
+    border()
+  }
+}
+
+time {
+  display flex
+  width 100%
+  flex auto
+  flex-wrap nowrap
+  align-items center
+  justify-content center
+  color #eee
+  cursor pointer
+  font-size min(60vh, 36vw)
+
+  &.withHour {
+    font-size min(60vh, 23vw)
+  }
+
+  &.timeOut {
+    animation blinker 1s ease infinite
+  }
+}
 </style>

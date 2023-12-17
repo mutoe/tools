@@ -5,20 +5,21 @@
 </template>
 
 <style lang="stylus" scoped>
-nav
-  display: grid
-  grid-template-columns: 1fr
-  width: max(960px, 90%)
-  margin: 64px auto 0
+nav {
+  display grid
+  width max(960px, 90%)
+  margin 64px auto 0
+  grid-template-columns 1fr
 
-  .item
+  .item {
     border()
-    font-size: 150%
-    width: 50%
-    margin: 0 auto
-    height: min(100px, 20vh)
-    display: flex
-    align-items: center
-    justify-content: center
-
+    display flex
+    width 50%
+    height min(100px, 20vh)
+    align-items center
+    justify-content center
+    margin 0 auto
+    font-size 150%
+  }
+}
 </style>
