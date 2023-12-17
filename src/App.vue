@@ -6,9 +6,7 @@
   </div>
 </template>
 
-<style lang="sass">
-@import "src/variables"
-
+<style lang="stylus">
 #app
   height: 100vh
   display: flex

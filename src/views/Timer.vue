@@ -95,9 +95,7 @@ const togglePause = () => {
 const padTime = (time: number): string => String(time).padStart(2, '0')
 </script>
 
-<style lang="sass" scoped>
-@import "src/variables"
-
+<style lang="stylus" scoped>
 .timer
   height: 100%
   display: flex
@@ -122,7 +120,6 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
 
   .time-picker
     display: flex
-    @include border
     box-sizing: content-box
 
     input,
@@ -145,7 +142,7 @@ const padTime = (time: number): string => String(time).padStart(2, '0')
 
   button
     font-size: 200%
-    @include border
+    border()
     background: transparent
     padding: 8px 0
     margin-left: 24px
@@ -172,9 +169,7 @@ time
 
 </style>
 
-<style lang="sass">
-@import "src/variables"
-
+<style lang="stylus">
 @keyframes blinker
   70%
     color: $secondary

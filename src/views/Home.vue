@@ -4,9 +4,7 @@
   </nav>
 </template>
 
-<style lang="sass" scoped>
-@import "src/variables"
-
+<style lang="stylus" scoped>
 nav
   display: grid
   grid-template-columns: 1fr
@@ -14,7 +12,7 @@ nav
   margin: 64px auto 0
 
   .item
-    @include border
+    border()
     font-size: 150%
     width: 50%
     margin: 0 auto
