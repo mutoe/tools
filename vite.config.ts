@@ -1,5 +1,5 @@
 import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -7,8 +7,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   resolve: {
     alias: {
-      'src': resolve(__dirname, 'src'),
-    },
+      'src': fileURLToPath(new URL('./src', import.meta.url))
+    }
   },
   plugins: [
     vue(),

@@ -1,6 +1,6 @@
-import { onMounted, onUnmounted, Ref, ref } from 'vue'
+import {onMounted, onUnmounted, type Ref, ref} from 'vue'
 
-export default function useFullscreen (element: Ref<HTMLElement>) {
+export default function useFullscreen (element: Ref<HTMLElement | undefined>) {
   const isFullscreen = ref(false)
 
   const handler = (e: Event) => {

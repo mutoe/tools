@@ -49,7 +49,7 @@ import useTimer from 'src/hooks/useTimer'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import throttle from 'lodash/throttle'
 
-const timeElement = ref<HTMLTimeElement>(null)
+const timeElement = ref<HTMLTimeElement>()
 const { isFullscreen, toggleFullscreen } = useFullscreen(timeElement)
 const { minute, second, hour, startTimer, stopTimer, timeOut, started } = useTimer()
 const { isMoving } = useMouseMoving()
