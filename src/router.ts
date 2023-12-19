@@ -6,5 +6,6 @@ export const router = createRouter({
   routes: [
     { path: '/', name: 'home', component: Home },
     { path: '/timer', name: 'timer', component: () => import('src/views/Timer.vue') },
+    { path: '/typewriter', name: 'typewriter', component: () => import('src/views/Typewriter.vue') },
   ],
 })

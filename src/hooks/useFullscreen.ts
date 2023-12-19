@@ -9,9 +9,9 @@ export default function useFullscreen(element: Ref<HTMLElement | undefined>) {
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement)
-      document.exitFullscreen?.()
+      void document.exitFullscreen?.()
     else
-      element.value?.requestFullscreen?.()
+      void element.value?.requestFullscreen?.()
   }
 
   onMounted(() => {

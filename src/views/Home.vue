@@ -1,6 +1,7 @@
 <template>
   <nav>
     <RouterLink class="item" to="/timer">Timer</RouterLink>
+    <RouterLink class="item" to="/typewriter">Typewriter</RouterLink>
   </nav>
 </template>
 
@@ -18,7 +19,7 @@ nav {
     height min(100px, 20vh)
     align-items center
     justify-content center
-    margin 0 auto
+    margin 0 auto 4vw
     font-size 150%
   }
 }
